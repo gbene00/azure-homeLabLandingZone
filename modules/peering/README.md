@@ -9,6 +9,7 @@ Creates virtual network peering between hub and spoke networks.
 ## Scope
 
 Enables:
-- hub-to-spoke connectivity
+- hub-to-spoke peering
+- spoke-to-hub peering
 - spoke-to-hub routing
 - shared service access
