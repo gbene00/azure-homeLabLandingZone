@@ -34,6 +34,9 @@ module "platform_logging" {
       ]
     }
   }
+  depends_on = [
+    module.platform_management_rg
+  ]
 }
 
 ## Platform Connectivity Module
@@ -73,5 +76,8 @@ module "hub_network" {
     subnet_names         = ["shared-az-lz-subnet", "mgmt-az-lz-subnet"]
     idle_timeout_minutes = 10
   }
+  depends_on = [
+    module.platform_connectivity_rg
+]
 }
 
