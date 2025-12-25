@@ -1,6 +1,7 @@
+## Azure Subscription
 data "azurerm_subscription" "current" {}
 
-# Required Tags Policy
+## Required Tags Policy
 module "required_tags_policy" {
   source = "../../modules/policy-baseline"
 
@@ -18,7 +19,7 @@ module "required_tags_policy" {
   assignment_scope = data.azurerm_subscription.current.id
 }
 
-# Allowed Locations Policy
+## Allowed Locations Policy
 module "allowed_locations_policy" {
   source = "../../modules/policy-baseline"
 
@@ -35,3 +36,34 @@ module "allowed_locations_policy" {
 
   assignment_scope = data.azurerm_subscription.current.id
 }
+
+## Azure Budgets Module
+module "subscription_budgets" {
+  source          = "../../modules/budgets"
+  subscription_id = data.azurerm_subscription.current.subscription_id
+
+  budgets = {
+    monthly_homelab = {
+      name       = "az-lz-budget-monthly-homelab"
+      amount     = 50
+      time_grain = "Monthly"
+      start_date = "2025-12-01"
+
+      notifications = {
+        warn_80 = {
+          enabled        = true
+          operator       = "GreaterThanOrEqualTo"
+          threshold      = 80
+          contact_emails = ["bene.gabriel3@gmail.com"]
+        }
+        crit_100 = {
+          enabled        = true
+          operator       = "GreaterThanOrEqualTo"
+          threshold      = 100
+          contact_emails = ["bene.gabriel3@gmail.com"]
+        }
+      }
+    }
+  }
+}
+
