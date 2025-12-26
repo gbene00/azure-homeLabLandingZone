@@ -12,3 +12,18 @@ output "platform_management_rg_name" {
   value       = module.platform_management_rg.name
   description = "Platform management resource group name."
 }
+
+output "hub_vnet_id" {
+  description = "Hub VNet ID."
+  value       = module.hub_network.hub_vnet_id
+}
+
+output "hub_vnet_name" {
+  description = "Hub VNet name."
+  value       = module.hub_network.hub_vnet_name
+}
+
+output "hub_vnet_rg_name" {
+  description = "Hub VNet resource group name."
+  value       = module.platform_connectivity_rg.name
+}

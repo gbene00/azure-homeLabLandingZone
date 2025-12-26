@@ -35,9 +35,9 @@ module "corp_hub_peering" {
   source = "../../../modules/peering"
 
   hub = {
-    name                = "hub-az-lz-vnet"
-    resource_group_name = "az-lz-platform-connectivity-rg"
-    id                  = var.hub_vnet_id
+    name                = data.terraform_remote_state.platform.outputs.hub_vnet_name
+    resource_group_name = data.terraform_remote_state.platform.outputs.hub_vnet_rg_name
+    id                  = data.terraform_remote_state.platform.outputs.hub_vnet_id
   }
 
   spoke = {

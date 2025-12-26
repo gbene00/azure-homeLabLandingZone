@@ -4,12 +4,6 @@ variable "location_primary" {
   default = "uksouth"
 }
 
-## Azure Hub VNet ID
-variable "hub_vnet_id" {
-  description = "Hub VNet ID from platform layer."
-  type        = string
-}
-
 ## Azure Tags
 variable "tags" {
   description = "Tags applied to corp resources."
