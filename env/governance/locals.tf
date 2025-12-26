@@ -1,11 +1,10 @@
-## Azure Regions
+## Local Variables for Governance
 locals {
   allowed_locations = [
     "uksouth",
     "ukwest"
   ]
 
-## Azure Required Tags
   required_tags = [
     "owner",
     "environment",
@@ -14,10 +13,9 @@ locals {
     "managedBy"
   ]
 
-## Azure Default Tags
   default_tags = {
-    owner       = "gabriel"
-    costcenter  = "homelab"
-    managedBy   = "terraform"
+    owner      = "gabriel"
+    costcenter = "homelab"
+    managedBy  = "terraform"
   }
 }
