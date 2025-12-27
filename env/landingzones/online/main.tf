@@ -25,6 +25,18 @@ module "online_spoke_network" {
     "az-lz-online-db-subnet"  = { address_prefixes = ["10.2.10.0/24"] }
   }
 
+    nsgs = {
+    "az-lz-online-app-subnet" = {
+      name = "nsg-az-lz-online-app"
+    }
+    "az-lz-online-web-subnet" = {
+      name = "nsg-az-lz-online-web"
+    }
+    "az-lz-online-db-subnet" = {
+      name = "nsg-az-lz-online-db"
+    }
+  }
+
   depends_on = [
     module.online_network_rg
   ]

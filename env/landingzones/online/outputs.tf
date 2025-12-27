@@ -25,3 +25,8 @@ output "online_peering_ids" {
     spoke_to_hub   = module.online_hub_peering.spoke_to_hub_peering_id
   }
 }
+
+output "online_nsg_ids" {
+  description = "Online NSG IDs keyed by subnet name."
+  value       = module.online_spoke_network.nsg_ids
+}

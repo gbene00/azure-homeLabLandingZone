@@ -33,3 +33,25 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+## Azure Network Security Groups
+variable "nsgs" {
+  description = "Map of Network Security Groups to create."
+  type = map(object({
+    name = string
+
+    security_rules = optional(list(object({
+      name                       = string
+      priority                   = number
+      direction                  = string # Inbound/Outbound
+      access                     = string # Allow/Deny
+      protocol                   = string # Tcp/Udp/*
+
+      source_port_range          = string
+      destination_port_range     = string
+      source_address_prefix      = string
+      destination_address_prefix = string
+    })), [])
+  }))
+  default = {}
+}

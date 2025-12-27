@@ -25,3 +25,8 @@ output "corp_peering_ids" {
     spoke_to_hub = module.corp_hub_peering.spoke_to_hub_peering_id
   }
 }
+
+output "corp_nsg_ids" {
+  description = "Corp NSG IDs keyed by subnet name."
+  value       = module.corp_spoke_network.nsg_ids
+}

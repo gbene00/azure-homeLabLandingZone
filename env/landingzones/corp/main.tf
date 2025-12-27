@@ -25,6 +25,18 @@ module "corp_spoke_network" {
     "az-lz-corp-db-subnet"  = { address_prefixes = ["10.1.10.0/24"] }
   }
 
+    nsgs = {
+    "az-lz-corp-app-subnet" = {
+      name = "nsg-az-lz-corp-app"
+    }
+    "az-lz-corp-aks-subnet" = {
+      name = "nsg-az-lz-corp-aks"
+    }
+    "az-lz-corp-db-subnet" = {
+      name = "nsg-az-lz-corp-db"
+    }
+  }
+
   depends_on = [
     module.corp_network_rg
   ]
