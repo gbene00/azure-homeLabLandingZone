@@ -12,18 +12,16 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
   }
 
   default_node_pool {
-  name                = var.node_pool.name
-  vm_size             = var.node_pool.vm_size
-  os_disk_size_gb     = var.node_pool.os_disk_size_gb
-  vnet_subnet_id      = var.subnet_id
-  type                = "VirtualMachineScaleSets"
+  name            = var.node_pool.name
+  vm_size         = var.node_pool.vm_size
+  os_disk_size_gb = var.node_pool.os_disk_size_gb
+  vnet_subnet_id  = var.subnet_id
+  type            = "VirtualMachineScaleSets"
 
-  node_count = (
-    var.node_pool.min_count != null && var.node_pool.max_count != null
-  ) ? null : var.node_pool.node_count
-
-  min_count = var.node_pool.min_count
-  max_count = var.node_pool.max_count
+  ## If autoscaling is enabled -> node_count must be null
+  node_count = var.node_pool.enable_auto_scaling ? null : var.node_pool.node_count
+  min_count  = var.node_pool.enable_auto_scaling ? var.node_pool.min_count : null
+  max_count  = var.node_pool.enable_auto_scaling ? var.node_pool.max_count : null
 }
   oms_agent {
     log_analytics_workspace_id = var.log_analytics_workspace_id
