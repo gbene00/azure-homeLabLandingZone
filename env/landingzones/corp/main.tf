@@ -62,3 +62,11 @@ module "corp_hub_peering" {
     module.corp_spoke_network
   ]
 }
+
+## Azure Corp Workloads Resource Group
+module "corp_workloads_rg" {
+  source   = "../../../modules/resource-group"
+  name     = "az-lz-corp-workload-rg"
+  location = var.location_primary
+  tags     = merge(var.tags, { workload = "corp-workloads" })
+}
