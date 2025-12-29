@@ -2,15 +2,25 @@
 
 Deploys centralized logging and monitoring resources.
 
+---
+
+## Purpose
+
+Provides a shared observability platform for all layers.
+
+---
+
 ## Resources created
 
-- `azurerm_log_analytics_workspace`
-- `azurerm_monitor_action_group`
-- `azurerm_monitor_diagnostic_setting`
+- Log Analytics workspace
+- Azure Monitor action groups
+- Diagnostic settings
+
+---
 
 ## Scope
 
-Provides a shared logging destination for:
-- platform resources
-- landing zone resources
-- workloads
+Used by:
+- Platform resources
+- Landing zones
+- Workloads (including AKS)

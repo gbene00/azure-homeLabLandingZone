@@ -2,19 +2,24 @@
 
 Defines and assigns Azure Policy objects that form the governance baseline.
 
+---
+
+## Purpose
+
+Encapsulates reusable policy logic for subscription-level governance.
+
+---
+
 ## Resources created
 
-- `azurerm_policy_definition`
-- `azurerm_policy_set_definition` (optional)
-- `azurerm_policy_assignment`
+- Policy assignments
+- Policy definitions (if required)
+- Policy sets (optional)
 
-## Scope
+---
 
-Policies are typically assigned at:
-- subscription scope
+## Use cases
 
-## Example use cases
-
-- Require specific resource tags
+- Enforce required tags
 - Restrict allowed Azure regions
-- Enforce security and compliance standards
+- Establish compliance baselines

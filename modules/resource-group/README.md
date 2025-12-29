@@ -1,11 +1,25 @@
 # Resource Group Module
 
-Creates an Azure Resource Group with standardized tagging.
+Creates Azure resource groups with consistent configuration.
+
+---
+
+## Purpose
+
+Ensures standardized naming, location, and tagging across all layers.
+
+---
 
 ## Resources created
 
-- `azurerm_resource_group`
+- Azure resource group
+
+---
 
 ## Scope
 
-This module is used by all layers to ensure consistent naming, location, and tagging of resource groups.
+Used by:
+- Governance
+- Platform
+- Landing zones
+- Workloads

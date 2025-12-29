@@ -1,19 +1,31 @@
 # RBAC Module
 
-Creates Azure RBAC role assignments.
+Creates Azure role-based access control (RBAC) assignments.
+
+---
+
+## Purpose
+
+Standardizes access control across the environment.
+
+---
 
 ## Resources created
 
-- `azurerm_role_assignment`
+- Role assignments
+
+---
 
 ## Scope
 
-Role assignments can be applied at:
-- subscription scope
-- resource group scope
+- Subscription
+- Resource group
+- Individual resources
+
+---
 
 ## Example use cases
 
-- Platform operators access
-- Workload team access
-- Read-only auditor access
+- Platform operators
+- Workload teams
+- Read-only audit access

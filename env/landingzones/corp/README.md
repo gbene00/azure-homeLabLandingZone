@@ -1,27 +1,53 @@
 # Landing Zone – Corp
 
-The corp landing zone represents **internal or corporate workloads**.
+The corp landing zone is intended for **internal, private workloads**.
 
-## Scope
+---
 
-This layer defines an isolated workload environment connected to the platform hub.
+## Purpose
 
-### Resources typically managed here
+This landing zone provides a secure and isolated environment for internal applications and platforms.
 
-- Corp-specific resource groups
-- Spoke virtual network
-- Subnets for applications, AKS, and data
-- Network security controls
-- Hub-to-spoke VNet peering
+---
 
-## Intended workload types
+## Responsibilities
 
-- Internal applications
-- AKS clusters
-- Databases
+- Define corp-specific resource groups
+- Create a spoke virtual network
+- Configure subnets for applications, AKS, and databases
+- Establish hub-to-spoke connectivity
+- Host internal workloads
+
+---
+
+## Current workloads
+
+- Azure Kubernetes Service (AKS)
+
+---
+
+## Potential future workloads
+
+This landing zone can be extended to support:
 - Virtual machines
+- VM Scale Sets
+- Azure Container Apps
+- Internal App Services
+- Databases accessed via private endpoints
+- Internal APIs and microservices
 
-## Dependency model
+---
 
-- Requires governance layer
-- Requires platform layer (hub networking)
+## Networking model
+
+- Hub-and-spoke topology
+- No direct internet exposure by default
+- Controlled outbound access through platform NAT Gateway
+
+---
+
+## Design considerations
+
+- Workload resources are fully isolated from other landing zones
+- New services can be added without changing the core structure
+- Security controls evolve incrementally

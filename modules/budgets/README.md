@@ -2,18 +2,22 @@
 
 Creates Azure Cost Management budgets and notifications.
 
+---
+
+## Purpose
+
+Provides cost visibility and basic financial governance.
+
+---
+
 ## Resources created
 
-- `azurerm_consumption_budget_subscription`
-- `azurerm_consumption_budget_resource_group`
+- Subscription-level budgets
+- Resource group–level budgets
 
-## Scope
+---
 
-Budgets can be scoped to:
-- the entire subscription
-- individual resource groups
+## Use cases
 
-## Example use cases
-
-- Monthly subscription budget
-- Cost alerts via email
+- Monthly subscription cost alerts
+- Budget thresholds for specific environments

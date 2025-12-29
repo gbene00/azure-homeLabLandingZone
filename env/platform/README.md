@@ -2,26 +2,43 @@
 
 The platform layer deploys **shared Azure services** that support all landing zones.
 
-## Scope
+---
 
-This layer provides foundational infrastructure that workloads depend on.
+## Purpose
 
-### Resources typically managed here
+This layer provides the foundational infrastructure required by workloads, without being tied to any specific application.
+
+---
+
+## Responsibilities
+
+- Create shared platform resource groups
+- Deploy centralized logging and monitoring
+- Build the hub virtual network
+- Provide outbound connectivity via NAT Gateway
+- Expose shared services to landing zones
+
+---
+
+## Resources managed
 
 - Platform resource groups
-- Centralized logging and monitoring
-- Hub virtual network
-- Outbound connectivity services
-- Shared identity-related infrastructure
+- Log Analytics workspace
+- Azure Monitor action groups
+- Hub virtual network and subnets
+- NAT Gateway and associations
 
-## Typical responsibilities
+---
 
-- Create the hub network used by all spokes
-- Provide centralized Log Analytics
-- Configure alerting and diagnostics sinks
-- Enable shared services used by multiple landing zones
+## Design considerations
+
+- Platform resources are long-lived and stable
+- No workload-specific resources are deployed here
+- Outputs are consumed by landing zones via remote state
+
+---
 
 ## Dependency model
 
 - Depends on the governance layer
-- Must be deployed before landing zones
+- Must be deployed before any landing zone
