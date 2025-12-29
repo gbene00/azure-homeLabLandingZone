@@ -1,85 +1,126 @@
 # Azure Landing Zone – Homelab (Terraform)
 
-This repository implements an **Azure Landing Zone–style architecture** using **Terraform** within a **single Azure subscription**.
+## Overview
 
-The project follows core Azure Landing Zone principles—governance, platform foundation, workload isolation, and separation of concerns—while adapting them to a homelab scenario by:
-- using **resource groups instead of subscriptions** for isolation
-- keeping **costs low**
-- deploying the environment **incrementally by layer**
+This repository contains the infrastructure-as-code for a **single-subscription Azure Landing Zone homelab**, built using **Terraform**.
 
-The design is intentionally modular and layered to reflect how enterprise Azure environments are structured, even though all resources reside in one subscription.
+The goal is to model a **realistic Azure enterprise foundation**—including governance, platform services, and workload landing zones—while keeping the environment approachable, cost-aware, and suitable for experimentation.
+
+Although this is a personal learning project, the repository structure and design decisions closely follow **Azure Landing Zone** and **platform engineering best practices**, making it suitable as a real-world reference.
 
 ---
 
-## Architecture overview
+## Objectives
 
-The environment is structured into independent layers, each managed by its own Terraform root and state file.
+This homelab helps me:
+
+- Practice **Azure Landing Zone architecture** in a controlled, low-risk environment
+- Design **governance-first cloud foundations** using Azure Policy and RBAC
+- Build a **hub-and-spoke networking model** with shared platform services
+- Gain hands-on experience with **Terraform at scale**, including:
+  - Multiple Terraform roots
+  - Remote state separation
+  - Reusable, composable modules
+- Experiment with **platform engineering concepts**, such as:
+  - Separation of governance, platform, and workloads
+  - Incremental infrastructure delivery
+  - Infrastructure lifecycle management (deploy, evolve, destroy)
+
+The repository intentionally mirrors how enterprise Azure environments are structured—even though everything runs in a single subscription.
+
+---
+
+## What This Repository Does
+
+At a high level, this repository defines a **layered Azure Landing Zone architecture**, fully deployed in Microsoft Azure.
+
+Terraform in this repository is responsible for:
+
+- Establishing **subscription-level governance**
+- Deploying **shared platform services**
+- Creating **isolated workload landing zones**
+- Providing a foundation for **Kubernetes and future workloads**
+- Enforcing consistent **naming, tagging, and structure** across all resources
+
+Each layer is deployed independently, using its own Terraform state, while respecting clear dependency boundaries.
+
+---
+
+## High-Level Architecture
+
+The environment is organized into **three main layers**:
 
 ### Governance
-Defines subscription-wide guardrails such as policies and baseline compliance controls.
+- Subscription-level Azure Policies
+- Tagging and location guardrails
+- Baseline compliance controls
 
 ### Platform
-Provides shared services used by all workloads, including networking, monitoring, and outbound connectivity.
+- Shared resource groups
+- Centralized logging and monitoring
+- Hub virtual network
+- Outbound connectivity via NAT Gateway
 
 ### Landing Zones
-Isolated workload environments implemented as spoke networks:
-- **Corp** – internal workloads
-- **Online** – internet-facing workloads
-
-Each layer is deployed and managed independently, but follows a clear dependency order.
-
----
-
-## Key design principles
-
-- Single Azure subscription
-- Multiple Terraform roots (one per layer)
-- Separate remote state per layer
-- Hub-and-spoke networking model
-- Centralized logging and monitoring
-- NAT Gateway for controlled outbound access
-- Variables modeled as maps and lists for extensibility
+- Workload isolation using spoke networks
+- Separate environments for different workload types:
+  - **Corp** – internal workloads (e.g. AKS)
+  - **Online** – internet-facing workloads
 
 ---
 
-## Intended use
+## Repository Structure
 
-This repository serves as:
-- a learning platform for Azure Landing Zones
-- a realistic reference architecture
-- a foundation for experimenting with governance, networking, and workloads
-- a base for future CI/CD automation
+### Environment Roots
+
+Each environment is a standalone Terraform root with its own state:
+
+- `env/governance` – subscription-level controls
+- `env/platform` – shared services and networking
+- `env/landingzones/corp` – internal workloads
+- `env/landingzones/online` – public workloads
+
+### Reusable Modules
+
+The `modules/` directory contains self-contained Terraform modules for:
+
+- Resource groups
+- Networking (hub and spoke)
+- Logging and monitoring
+- Azure Policy baselines
+- RBAC assignments
+- AKS clusters
+- Budgets and cost controls
+
+Each module is designed to be:
+
+- Reusable
+- Extensible
+- Configurable via **maps and lists**
+- Safe to evolve over time
 
 ---
 
-## Deployment order
+## Infrastructure Lifecycle
 
-Infrastructure must be deployed in the following logical sequence:
+This repository supports a **clean and repeatable infrastructure lifecycle**.
 
-1. **Governance**  
-   Establishes global rules and guardrails that apply to all resources.
+### Deployment Order
 
-2. **Platform**  
-   Deploys shared services such as networking and monitoring that landing zones depend on.
+Infrastructure is deployed incrementally in the following order:
 
-3. **Landing Zones**  
-   Workload environments (corp, online) that consume platform services.
+1. Governance
+2. Platform
+3. Landing Zones (corp, online)
 
-This order ensures all dependencies are satisfied before workloads are introduced.
+This ensures all guardrails and shared services exist before workloads are introduced.
 
----
+### Destruction Order
 
-## Resource destruction order
+Resources are removed in the **reverse order**:
 
-To safely remove the environment, resources should be destroyed in the **reverse order** of deployment:
+1. Landing Zones
+2. Platform
+3. Governance
 
-1. **Landing Zones**  
-   All workload resources must be removed first.
-
-2. **Platform**  
-   Shared services are removed after workloads no longer depend on them.
-
-3. **Governance**  
-   Policies and global controls are removed last.
-
-This approach avoids dependency conflicts and ensures clean teardown.
+This prevents dependency conflicts and enables clean teardown.
