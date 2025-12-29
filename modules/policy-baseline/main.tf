@@ -1,13 +1,11 @@
 locals {
-  ## Map our "policy_type" to built-in policy display names
   built_in_policy_display_names = {
     allowed_locations        = "Allowed locations"
-    require_tag_on_resources = "Require a tag on resources"
+    require_tag_on_resources = "Audit tag and its value"
   }
 
   policy_display_name = try(local.built_in_policy_display_names[var.policy_type], null)
 
-  ## Accept either UUID or full resource ID
   subscription_resource_id = startswith(var.subscription_id, "/subscriptions/") ? var.subscription_id : "/subscriptions/${var.subscription_id}"
 }
 
@@ -15,6 +13,7 @@ data "azurerm_policy_definition" "built_in" {
   display_name = local.policy_display_name
 }
 
+## Azure Policy Assignment
 resource "azurerm_subscription_policy_assignment" "policy_assignment" {
   name                 = var.name
   display_name         = var.name

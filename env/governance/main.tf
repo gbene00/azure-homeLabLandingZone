@@ -32,5 +32,8 @@ module "policy_require_tags" {
     tagName = {
       value = each.value
     }
+    tagValue = {
+      value = "*"
+    }
   }
 }
