@@ -1,3 +1,7 @@
+data "azurerm_policy_definition" "require_tag_on_resources" {
+  display_name = "Require a tag on resources"
+}
+
 ## Azure Corp Network Resource Group
 module "corp_network_rg" {
   source   = "../../../modules/resource-group"
@@ -70,6 +74,27 @@ module "corp_workloads_rg" {
   location = var.location_primary
   tags     = merge(var.tags, { workload = "corp-workloads" })
 }
+
+## Azure Corp Workloads Resource Group - Require Tags
+module "corp_workloads_require_tags" {
+  source = "../../../modules/policy-baseline-rg"
+
+  for_each = toset(local.required_tags)
+
+  name              = "alz-require-tag-${each.value}-corp-workloads"
+  description       = "Require tag '${each.value}' on corp workloads RG"
+  resource_group_id = module.corp_workloads_rg.id
+
+  # Built-in: Require a tag on resources
+  policy_definition_id = data.azurerm_policy_definition.require_tag_on_resources.id
+
+  parameters = {
+    tagName = { value = each.value }
+  }
+
+  depends_on = [module.corp_workloads_rg]
+}
+
 
 ## Azure Corp AKS Cluster
 module "corp_aks" {
