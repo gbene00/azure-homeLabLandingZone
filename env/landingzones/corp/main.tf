@@ -70,3 +70,28 @@ module "corp_workloads_rg" {
   location = var.location_primary
   tags     = merge(var.tags, { workload = "corp-workloads" })
 }
+
+## Azure Corp AKS Cluster
+module "corp_aks" {
+  count  = var.aks.enabled ? 1 : 0
+  source = "../../../modules/aks"
+
+  name                = var.aks.name
+  location            = var.location_primary
+  resource_group_name = module.corp_workloads_rg.name
+
+  kubernetes_version = length(var.aks.kubernetes_version) > 0 ? var.aks.kubernetes_version : null
+
+  subnet_id                  = module.corp_spoke_network.subnet_ids["az-lz-corp-aks-subnet"]
+  log_analytics_workspace_id = data.terraform_remote_state.platform.outputs.log_analytics_workspace_id
+
+  node_pool = var.aks.node_pool
+
+  tags = merge(var.tags, { workload = "corp-aks" })
+
+  depends_on = [
+    module.corp_spoke_network,
+    module.corp_workloads_rg
+  ]
+}
+
