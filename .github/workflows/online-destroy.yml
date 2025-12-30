@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       confirm_destroy:
-        description: 'Type DESTROY to confirm'
+        description: "Type DESTROY to confirm"
         required: true
-        default: 'NO'
+        default: "NO"
 
 permissions:
   id-token: write
@@ -18,21 +18,34 @@ jobs:
     runs-on: ubuntu-latest
     environment: destroy-governance
 
-    defaults:
-      run:
-        shell: bash
-        working-directory: environment/governance
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check confirmation
+      - name: Confirm destroy
+        shell: bash
         run: |
           if [ "${{ github.event.inputs.confirm_destroy }}" != "DESTROY" ]; then
             echo "Confirmation failed. Type DESTROY to proceed."
             exit 1
           fi
+
+      - name: Detect governance directory
+        shell: bash
+        run: |
+          set -e
+          if [ -d "env/governance" ]; then
+            echo "TF_DIR=env/governance" >> $GITHUB_ENV
+          elif [ -d "environment/governance" ]; then
+            echo "TF_DIR=environment/governance" >> $GITHUB_ENV
+          else
+            echo "Could not find governance directory. Repo root contents:"
+            ls -la
+            echo "Searching for governance folder:"
+            find . -maxdepth 4 -type d -name governance -print
+            exit 1
+          fi
+          echo "Using TF_DIR=$TF_DIR"
 
       - name: Azure Login (OIDC)
         uses: azure/login@v1
@@ -45,10 +58,16 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
+        shell: bash
         run: terraform init
+        working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Validate
+        shell: bash
         run: terraform validate
+        working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Destroy
+        shell: bash
         run: terraform destroy -auto-approve
+        working-directory: ${{ env.TF_DIR }}
