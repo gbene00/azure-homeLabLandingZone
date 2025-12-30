@@ -6,7 +6,7 @@ on:
       confirm_destroy:
         description: "Type DESTROY to confirm"
         required: true
-        default: "NO"
+        default: ""
 
 permissions:
   id-token: write
