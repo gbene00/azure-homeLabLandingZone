@@ -21,18 +21,18 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: env/governance
+        working-directory: environment/governance
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Check confirmation
         run: |
           if [ "${{ github.event.inputs.confirm_destroy }}" != "DESTROY" ]; then
             echo "Confirmation failed. Type DESTROY to proceed."
             exit 1
           fi
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Azure Login (OIDC)
         uses: azure/login@v1
