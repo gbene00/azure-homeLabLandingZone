@@ -7,7 +7,6 @@ on:
     paths:
       - "env/governance/**"
       - "modules/**"
-      - ".github/workflows/governance-apply.yml"
 
 permissions:
   id-token: write
