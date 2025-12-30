@@ -1,0 +1,69 @@
+name: Governance – Terraform Apply
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "env/governance/**"
+      - "modules/**"
+      - ".github/workflows/governance-apply.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform_plan:
+    name: Terraform Plan (Governance)
+    runs-on: ubuntu-latest
+    environment: governance
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID_GOVERNANCE }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Terraform Init
+        working-directory: env/governance
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: env/governance
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: env/governance
+        run: terraform plan -out=tfplan
+
+
+  terraform_apply:
+    name: Terraform Apply (Governance)
+    runs-on: ubuntu-latest
+    environment: governance
+    needs: terraform_plan
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID_GOVERNANCE }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Terraform Init
+        working-directory: env/governance
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: env/governance
+        run: terraform apply -auto-approve
