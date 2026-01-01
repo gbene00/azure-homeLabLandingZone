@@ -1,0 +1,73 @@
+name: Corp – Terraform Destroy
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_destroy:
+        description: "Type DESTROY to confirm"
+        required: true
+        default: ""
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform_destroy:
+    name: Terraform Destroy (Corp)
+    runs-on: ubuntu-latest
+    environment: destroy-corp
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Confirm destroy
+        shell: bash
+        run: |
+          if [ "${{ github.event.inputs.confirm_destroy }}" != "DESTROY" ]; then
+            echo "Confirmation failed. Type DESTROY to proceed."
+            exit 1
+          fi
+
+      - name: Detect corp directory
+        shell: bash
+        run: |
+          set -e
+          if [ -d "env/landingzones/corp" ]; then
+            echo "TF_DIR=env/landingzones/corp" >> $GITHUB_ENV
+          elif [ -d "environment/landingzones/corp" ]; then
+            echo "TF_DIR=environment/landingzones/corp" >> $GITHUB_ENV
+          else
+            echo "Could not find corp landing zone directory. Repo root contents:"
+            ls -la
+            echo "Searching for corp folder:"
+            find . -maxdepth 5 -type d -name corp -print
+            exit 1
+          fi
+          echo "Using TF_DIR=$TF_DIR"
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID_CORP }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        shell: bash
+        run: terraform init
+        working-directory: ${{ env.TF_DIR }}
+
+      - name: Terraform Validate
+        shell: bash
+        run: terraform validate
+        working-directory: ${{ env.TF_DIR }}
+
+      - name: Terraform Destroy
+        shell: bash
+        run: terraform destroy -auto-approve
+        working-directory: ${{ env.TF_DIR }}
