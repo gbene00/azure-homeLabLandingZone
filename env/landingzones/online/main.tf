@@ -25,7 +25,7 @@ module "online_spoke_network" {
     "az-lz-online-db-subnet"  = { address_prefixes = ["10.2.10.0/24"] }
   }
 
-    nsgs = {
+  nsgs = {
     "az-lz-online-app-subnet" = {
       name = "nsg-az-lz-online-app"
     }
@@ -63,9 +63,17 @@ module "online_hub_peering" {
   ]
 }
 
+## Azure Online Workloads Resource Group
+module "online_workloads_rg" {
+  source   = "../../../modules/resource-group"
+  name     = "az-lz-online-workloads-rg"
+  location = var.location_primary
+  tags     = merge(var.tags, { workload = "online-workloads" })
+}
+
 ## Azure Online Static Website Module
 module "online_static_site" {
-  source = "../../../modules/static-website"
+  source = "../../../modules/staticwebsite"
 
   enabled             = var.static_site.enabled
   resource_group_name = module.online_workloads_rg.name

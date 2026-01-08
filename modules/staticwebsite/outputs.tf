@@ -10,5 +10,5 @@ output "primary_web_endpoint" {
 
 output "cdn_endpoint_hostname" {
   description = "CDN endpoint hostname."
-  value       = (var.enabled && try(var.cdn.enabled, false)) ? azurerm_cdn_endpoint.cdn_endpoint[0].host_name : null
+  value       = (var.enabled && try(var.cdn.enabled, false)) ? azurerm_cdn_endpoint.cdn_endpoint[0].fqdn : null
 }
