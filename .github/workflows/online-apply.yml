@@ -1,5 +1,5 @@
-# .github/workflows/online-content-upload.yml
-name: Online – Upload Static Site Content
+name: Online – Terraform Apply
+
 
 on:
   push:
