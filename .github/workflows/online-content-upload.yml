@@ -1,0 +1,38 @@
+name: Online – Upload Static Site Content
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "static-site-content/**"
+      - ".github/workflows/online-content-upload.yml"
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    environment: online
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID_ONLINE }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Upload site content to $web
+        run: |
+          az storage blob upload-batch \
+            --account-name "${{ vars.STATIC_SITE_STORAGE_ACCOUNT }}" \
+            --destination '$web' \
+            --source "static-site-content" \
+            --overwrite true \
+            --auth-mode login
