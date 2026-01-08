@@ -1,36 +1,22 @@
-name: Online – Terraform Apply
+# .github/workflows/online-content-upload.yml
+name: Online – Upload Static Site Content
 
 on:
   push:
-    branches:
-      - main
+    branches: ["main"]
     paths:
-      - "env/landingzones/online/**"
-      - "modules/**"
-      - ".github/workflows/online-apply.yml"
-
-  workflow_run:
-    workflows: ["Platform – Terraform Apply"]
-    types:
-      - completed
+      - "static-site-content/**"
+      - ".github/workflows/online-content-upload.yml"
+  workflow_dispatch: {}
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  terraform_plan:
-    name: Terraform Plan (Online)
+  upload:
     runs-on: ubuntu-latest
     environment: online
-    if: |
-      (github.event_name == 'push') ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
-
-    defaults:
-      run:
-        shell: bash
-        working-directory: env/landingzones/online
 
     steps:
       - name: Checkout repository
@@ -43,58 +29,59 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
-
-      - name: Upload plan artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: online-tfplan
-          path: env/landingzones/online/tfplan
-
-  terraform_apply:
-    name: Terraform Apply (Online)
-    runs-on: ubuntu-latest
-    environment: online
-    needs: terraform_plan
-    if: needs.terraform_plan.result == 'success'
-
-    defaults:
-      run:
+      - name: Resolve storage account scope
+        id: scope
         shell: bash
-        working-directory: env/landingzones/online
+        run: |
+          set -euo pipefail
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+          RG="${{ vars.STATIC_SITE_RESOURCE_GROUP }}"
+          SA="${{ vars.STATIC_SITE_STORAGE_ACCOUNT }}"
 
-      - name: Azure Login (OIDC)
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID_ONLINE }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          SA_ID="$(az storage account show -g "$RG" -n "$SA" --query id -o tsv)"
+          if [ -z "$SA_ID" ]; then
+            echo "Storage account not found. Did you run terraform apply for online?"
+            exit 1
+          fi
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+          echo "sa_id=$SA_ID" >> "$GITHUB_OUTPUT"
+          echo "Storage account scope: $SA_ID"
 
-      - name: Terraform Init
-        run: terraform init
+      - name: Ensure RBAC for content upload (idempotent)
+        shell: bash
+        run: |
+          set -euo pipefail
 
-      - name: Download plan artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: online-tfplan
-          path: env/landingzones/online
+          SA_ID="${{ steps.scope.outputs.sa_id }}"
+          ASSIGNEE_OBJECT_ID="${{ vars.ONLINE_GITHUB_OIDC_OBJECT_ID }}"
+          ROLE="Storage Blob Data Contributor"
 
-      - name: Terraform Apply (from plan)
-        run: terraform apply -auto-approve tfplan
+          # Check if assignment already exists
+          EXISTING="$(az role assignment list \
+            --assignee-object-id "$ASSIGNEE_OBJECT_ID" \
+            --scope "$SA_ID" \
+            --role "$ROLE" \
+            --query "length(@)" -o tsv)"
+
+          if [ "${EXISTING}" = "0" ]; then
+            echo "Creating role assignment: $ROLE"
+            az role assignment create \
+              --assignee-object-id "$ASSIGNEE_OBJECT_ID" \
+              --assignee-principal-type ServicePrincipal \
+              --role "$ROLE" \
+              --scope "$SA_ID" >/dev/null
+          else
+            echo "Role assignment already present. Skipping."
+          fi
+
+      - name: Upload site content to $web
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          az storage blob upload-batch \
+            --account-name "${{ vars.STATIC_SITE_STORAGE_ACCOUNT }}" \
+            --destination '$web' \
+            --source "static-site-content" \
+            --overwrite true \
+            --auth-mode login
