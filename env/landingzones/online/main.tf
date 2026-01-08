@@ -62,3 +62,20 @@ module "online_hub_peering" {
     module.online_spoke_network
   ]
 }
+
+## Azure Online Static Website Module
+module "online_static_site" {
+  source = "../../../modules/static-website"
+
+  enabled             = var.static_site.enabled
+  resource_group_name = module.online_workloads_rg.name
+  location            = var.location_primary
+  tags                = var.tags
+
+  storage_account = var.static_site.storage_account
+  cdn             = try(var.static_site.cdn, {})
+
+  depends_on = [
+    module.online_workloads_rg
+  ]
+}

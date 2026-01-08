@@ -30,3 +30,13 @@ output "online_nsg_ids" {
   description = "Online NSG IDs keyed by subnet name."
   value       = module.online_spoke_network.nsg_ids
 }
+
+output "static_site_primary_web_endpoint" {
+  description = "Direct static website endpoint from storage account."
+  value       = module.online_static_site.primary_web_endpoint
+}
+
+output "static_site_cdn_hostname" {
+  description = "CDN hostname if enabled."
+  value       = module.online_static_site.cdn_endpoint_hostname
+}
