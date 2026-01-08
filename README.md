@@ -12,7 +12,7 @@ Although this is a personal learning project, the repository structure and desig
 
 ## Objectives
 
-This homelab helps me:
+This homelab helps in:
 
 - Practice **Azure Landing Zone architecture** in a controlled, low-risk environment
 - Design **governance-first cloud foundations** using Azure Policy and RBAC
@@ -156,3 +156,12 @@ Resources are removed in the **reverse order**:
 3. Governance
 
 This prevents dependency conflicts and enables clean teardown.
+
+## Non-Goals
+
+This repository does not attempt to:
+
+- Provide a multi-subscription management group hierarchy
+- Fully implement all Azure Landing Zone optional components
+- Serve as a production-ready reference implementation
+
