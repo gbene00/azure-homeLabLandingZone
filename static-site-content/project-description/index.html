@@ -3,30 +3,177 @@
 <head>
   <meta charset="UTF-8" />
   <title>Project Description</title>
+
+  <style>
+    :root {
+      --azure-blue: #0078d4;
+      --azure-dark: #004578;
+      --bg-light: #f5f7fa;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --card-bg: #ffffff;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-light);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--azure-blue), var(--azure-dark));
+      color: white;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.3rem;
+      font-weight: 600;
+    }
+
+    header p {
+      margin-top: 0.75rem;
+      font-size: 1.05rem;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 900px;
+      margin: -2rem auto 3rem;
+      padding: 0 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--azure-dark);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 1.5rem 0 0;
+    }
+
+    li {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: var(--azure-blue);
+      font-weight: bold;
+    }
+
+    .layer-title {
+      font-weight: 600;
+    }
+
+    a {
+      color: var(--azure-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 1rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      padding: 2rem 1rem;
+    }
+  </style>
 </head>
 <body>
-  <h1>Project Description</h1>
 
-  <p>
-    This project implements an Azure Landing Zone–style architecture
-    using Terraform and a single Azure subscription.
-  </p>
+  <header>
+    <h1>Project Description</h1>
+    <p>
+      What this project is, why it exists, and how it's structured.
+    </p>
+  </header>
 
-  <h2>Architecture Layers</h2>
-  <ul>
-    <li>Governance – policies and guardrails</li>
-    <li>Platform – shared services and hub networking</li>
-    <li>Landing Zones – isolated workload environments</li>
-  </ul>
+  <main>
+    <div class="card">
+      <p>
+        This project implements an <strong>Azure Landing Zone–style architecture</strong>
+        using <strong>Terraform</strong> and a <strong>single Azure subscription</strong>.
+      </p>
 
-  <h2>Why This Project Exists</h2>
-  <p>
-    The goal is to practice real-world Azure infrastructure patterns,
-    platform engineering concepts, and infrastructure automation.
-  </p>
+      <p>
+        The goal is not to deploy as many resources as possible, but to model how
+        <em>real platform teams</em> structure cloud foundations — with clear layers,
+        ownership boundaries, and just enough guardrails to sleep at night.
+      </p>
+    </div>
 
-  <p>
-    <a href="/">← Back to home</a>
-  </p>
+    <div class="card">
+      <h2>Architecture Layers</h2>
+      <ul>
+        <li>
+          <span class="layer-title">Governance</span> – policies and guardrails that say
+          “no” before Azure has a chance to say “surprise”.
+        </li>
+        <li>
+          <span class="layer-title">Platform</span> – shared services, logging, and hub
+          networking that workloads quietly depend on.
+        </li>
+        <li>
+          <span class="layer-title">Landing Zones</span> – isolated environments where
+          workloads live, evolve, and occasionally misbehave.
+        </li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Why This Project Exists</h2>
+      <p>
+        This homelab exists to practice <strong>real-world Azure infrastructure patterns</strong>,
+        explore <strong>platform engineering concepts</strong>, and automate everything that
+        shouldn’t require a human clicking buttons.
+      </p>
+
+      <p>
+        It’s a safe place to test ideas, validate assumptions, and learn what works
+        before any of this ever gets near production.
+      </p>
+    </div>
+
+    <div class="card">
+      <a class="back-link" href="/">← Back to home</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>
+      Designed with structure, intention, and a healthy respect for blast radius.
+    </p>
+  </footer>
+
 </body>
 </html>

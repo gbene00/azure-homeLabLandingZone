@@ -3,28 +3,173 @@
 <head>
   <meta charset="UTF-8" />
   <title>Azure Landing Zone – Homelab</title>
+
+  <style>
+    :root {
+      --azure-blue: #0078d4;
+      --azure-dark: #004578;
+      --bg-light: #f5f7fa;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --card-bg: #ffffff;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-light);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--azure-blue), var(--azure-dark));
+      color: white;
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 600;
+    }
+
+    header p {
+      margin-top: 0.75rem;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 900px;
+      margin: -2rem auto 3rem;
+      padding: 0 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--azure-dark);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 1.5rem 0 0;
+    }
+
+    li {
+      margin-bottom: 1rem;
+    }
+
+    a {
+      color: var(--azure-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .section-link {
+      display: block;
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+      background: #f0f6fc;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .section-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      padding: 2rem 1rem;
+    }
+
+    footer a {
+      color: var(--text-muted);
+    }
+  </style>
 </head>
 <body>
-  <h1>Azure Landing Zone – Homelab</h1>
 
-  <p>
-    This site documents my Azure Landing Zone homelab, built using Terraform
-    and platform engineering best practices.
-  </p>
+  <header>
+    <h1>Azure Landing Zone – Homelab</h1>
+    <p>
+      A small Azure subscription trying very hard to behave like an enterprise.
+    </p>
+  </header>
 
-  <h2>Sections</h2>
-  <ul>
-    <li><a href="/project-description/">Project Description</a></li>
-    <li><a href="/about-author/">About the Author</a></li>
-  </ul>
+  <main>
+    <div class="card">
+      <p>
+        Welcome 👋  
+        This site documents my <strong>Azure Landing Zone homelab</strong>, built
+        with <strong>Terraform</strong>, <strong>GitHub Actions</strong>, and a healthy
+        respect for governance.
+      </p>
 
-  <hr />
+      <p>
+        Think of it as a sandbox where cloud architecture patterns are tested,
+        broken, fixed, and occasionally admired.
+      </p>
+    </div>
 
-  <p>
-    Source code:
-    <a href="https://github.com/gbene00/azure-homeLabLandingZone">
-      GitHub Repository
-    </a>
-  </p>
+    <div class="card">
+      <h2>Explore</h2>
+      <ul>
+        <li>
+          <a class="section-link" href="/project-description/">
+            📐 Project Description  
+            <br />
+            <small>Architecture, layers, and why things are wired the way they are.</small>
+          </a>
+        </li>
+        <li>
+          <a class="section-link" href="/about-author/">
+            👨‍💻 About the Author  
+            <br />
+            <small>The human responsible for the Terraform state files.</small>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Source Code</h2>
+      <p>
+        All infrastructure, modules, and pipelines live on GitHub:
+      </p>
+      <p>
+        <a href="https://github.com/gbene00/azure-homeLabLandingZone" target="_blank">
+          👉 github.com/gbene00/azure-homeLabLandingZone
+        </a>
+      </p>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">
+        Warning: may contain opinions about Terraform structure.  If you spot patterns used at Google, Microsoft, or any other Big Tech company, don’t worry — hey definitely didn’t copy them from me. Probably.
+      </p>
+    </div>
+  </main>
+
+  <footer>
+    <p>
+      Built with ☁️ Azure, 🧱 Terraform, and trust issues around terraform apply.
+    </p>
+  </footer>
+
 </body>
 </html>
