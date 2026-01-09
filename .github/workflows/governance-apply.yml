@@ -4,18 +4,15 @@ on:
   workflow_dispatch: {}
 
   push:
-    branches:
-      - main
+    branches: ["main"]
     paths:
       - "env/governance/**"
-      - "modules/**"
       - ".github/workflows/governance-apply.yml"
 
 permissions:
   id-token: write
   contents: read
 
-# Prevents multiple Governance Terraform runs from overlapping
 concurrency:
   group: terraform-governance
   cancel-in-progress: false
@@ -26,18 +23,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: governance
 
-    if: |
-      (github.event_name == 'workflow_dispatch') ||
-      (github.event_name == 'push')
-
     defaults:
       run:
         shell: bash
         working-directory: env/governance
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Azure Login (OIDC)
         uses: azure/login@v1
@@ -46,20 +38,13 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init
-        run: terraform init
+      - run: terraform init
+      - run: terraform validate
+      - run: terraform plan -out=tfplan
 
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
-
-      - name: Upload plan artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: governance-tfplan
           path: env/governance/tfplan
@@ -77,8 +62,7 @@ jobs:
         working-directory: env/governance
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Azure Login (OIDC)
         uses: azure/login@v1
@@ -87,17 +71,13 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init
-        run: terraform init
+      - run: terraform init
 
-      - name: Download plan artifact
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: governance-tfplan
           path: env/governance
 
-      - name: Terraform Apply (from plan)
-        run: terraform apply -auto-approve tfplan
+      - run: terraform apply -auto-approve tfplan

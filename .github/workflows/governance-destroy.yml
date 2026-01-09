@@ -7,20 +7,26 @@ on:
         description: "Type DESTROY to confirm"
         required: true
         default: ""
+      lock_id:
+        description: "Optional Terraform lock ID to force-unlock"
+        required: false
+        default: ""
 
 permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: terraform-governance
+  cancel-in-progress: false
+
 jobs:
   terraform_destroy:
-    name: Terraform Destroy (Governance)
     runs-on: ubuntu-latest
     environment: destroy-governance
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Confirm destroy
         shell: bash
@@ -30,23 +36,6 @@ jobs:
             exit 1
           fi
 
-      - name: Detect governance directory
-        shell: bash
-        run: |
-          set -e
-          if [ -d "env/governance" ]; then
-            echo "TF_DIR=env/governance" >> $GITHUB_ENV
-          elif [ -d "environment/governance" ]; then
-            echo "TF_DIR=environment/governance" >> $GITHUB_ENV
-          else
-            echo "Could not find governance directory. Repo root contents:"
-            ls -la
-            echo "Searching for governance folder:"
-            find . -maxdepth 4 -type d -name governance -print
-            exit 1
-          fi
-          echo "Using TF_DIR=$TF_DIR"
-
       - name: Azure Login (OIDC)
         uses: azure/login@v1
         with:
@@ -54,20 +43,17 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        shell: bash
         run: terraform init
-        working-directory: ${{ env.TF_DIR }}
+        working-directory: env/governance
 
-      - name: Terraform Validate
-        shell: bash
-        run: terraform validate
-        working-directory: ${{ env.TF_DIR }}
+      - name: Force unlock state (optional)
+        if: ${{ github.event.inputs.lock_id != '' }}
+        run: terraform force-unlock -force "${{ github.event.inputs.lock_id }}"
+        working-directory: env/governance
 
       - name: Terraform Destroy
-        shell: bash
         run: terraform destroy -auto-approve
-        working-directory: ${{ env.TF_DIR }}
+        working-directory: env/governance
