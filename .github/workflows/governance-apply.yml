@@ -2,7 +2,7 @@ name: Governance – Terraform Apply
 
 on:
   workflow_dispatch: {}
-  
+
   push:
     branches:
       - main
@@ -15,11 +15,20 @@ permissions:
   id-token: write
   contents: read
 
+# Prevents multiple Governance Terraform runs from overlapping
+concurrency:
+  group: terraform-governance
+  cancel-in-progress: false
+
 jobs:
   terraform_plan:
     name: Terraform Plan (Governance)
     runs-on: ubuntu-latest
     environment: governance
+
+    if: |
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'push')
 
     defaults:
       run:
@@ -60,6 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: governance
     needs: terraform_plan
+    if: needs.terraform_plan.result == 'success'
 
     defaults:
       run:
