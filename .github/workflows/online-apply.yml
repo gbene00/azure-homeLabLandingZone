@@ -1,0 +1,83 @@
+name: Online – Terraform Apply
+
+on:
+  workflow_dispatch: {}
+
+  push:
+    branches: ["main"]
+    paths:
+      - "env/landingzones/online/**"
+      - ".github/workflows/online-apply.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: terraform-online
+  cancel-in-progress: false
+
+jobs:
+  terraform_plan:
+    name: Terraform Plan (Online)
+    runs-on: ubuntu-latest
+    environment: online
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: env/landingzones/online
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID_ONLINE }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+      - run: terraform validate
+      - run: terraform plan -out=tfplan
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: online-tfplan
+          path: env/landingzones/online/tfplan
+
+  terraform_apply:
+    name: Terraform Apply (Online)
+    runs-on: ubuntu-latest
+    environment: online
+    needs: terraform_plan
+    if: needs.terraform_plan.result == 'success'
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: env/landingzones/online
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID_ONLINE }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: online-tfplan
+          path: env/landingzones/online
+
+      - run: terraform apply -auto-approve tfplan
