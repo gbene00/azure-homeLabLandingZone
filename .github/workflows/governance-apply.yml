@@ -1,6 +1,8 @@
 name: Governance – Terraform Apply
 
 on:
+  workflow_dispatch: {}
+  
   push:
     branches:
       - main
@@ -8,7 +10,6 @@ on:
       - "env/governance/**"
       - "modules/**"
       - ".github/workflows/governance-apply.yml"
-  workflow_dispatch: {}
 
 permissions:
   id-token: write
