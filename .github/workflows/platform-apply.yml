@@ -1,0 +1,116 @@
+name: Platform – Terraform Apply
+
+on:
+  workflow_dispatch: {}
+
+  push:
+    branches: ["main"]
+    paths:
+      - "env/platform/**"
+      - ".github/workflows/platform-apply.yml"
+
+permissions:
+  id-token: write
+  contents: read
+  actions: read
+
+concurrency:
+  group: terraform-platform
+  cancel-in-progress: false
+
+jobs:
+  check_governance:
+    name: Check Governance workflow status
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if latest Governance run on main is not successful
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update -y && sudo apt-get install -y jq
+          fi
+
+          RESP="$(curl -sS -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$REPO/actions/workflows/governance-apply.yml/runs?branch=main&per_page=1")"
+
+          STATUS="$(echo "$RESP" | jq -r '.workflow_runs[0].status // empty')"
+          CONCLUSION="$(echo "$RESP" | jq -r '.workflow_runs[0].conclusion // empty')"
+          URL="$(echo "$RESP" | jq -r '.workflow_runs[0].html_url // empty')"
+
+          echo "Latest Governance run: status=$STATUS conclusion=$CONCLUSION"
+          echo "Run URL: $URL"
+
+          if [ "$STATUS" != "completed" ] || [ "$CONCLUSION" != "success" ]; then
+            echo "Governance is not in a successful state. Run Governance first (and ensure it succeeds)."
+            exit 1
+          fi
+
+  terraform_plan:
+    name: Terraform Plan (Platform)
+    runs-on: ubuntu-latest
+    environment: platform
+    needs: check_governance
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: env/platform
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID_PLATFORM }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+      - run: terraform validate
+      - run: terraform plan -out=tfplan
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: platform-tfplan
+          path: env/platform/tfplan
+
+  terraform_apply:
+    name: Terraform Apply (Platform)
+    runs-on: ubuntu-latest
+    environment: platform
+    needs: terraform_plan
+    if: needs.terraform_plan.result == 'success'
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: env/platform
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID_PLATFORM }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: platform-tfplan
+          path: env/platform
+
+      - run: terraform apply -auto-approve tfplan
