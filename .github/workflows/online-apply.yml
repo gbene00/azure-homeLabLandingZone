@@ -29,7 +29,8 @@ jobs:
         working-directory: env/landingzones/online
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Azure Login (OIDC)
         uses: azure/login@v1
@@ -38,13 +39,20 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - uses: hashicorp/setup-terraform@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
-      - run: terraform init
-      - run: terraform validate
-      - run: terraform plan -out=tfplan
+      - name: Terraform Init
+        run: terraform init -input=false
 
-      - uses: actions/upload-artifact@v4
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Upload plan artifact
+        uses: actions/upload-artifact@v4
         with:
           name: online-tfplan
           path: env/landingzones/online/tfplan
@@ -62,7 +70,8 @@ jobs:
         working-directory: env/landingzones/online
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Azure Login (OIDC)
         uses: azure/login@v1
@@ -71,13 +80,17 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - uses: hashicorp/setup-terraform@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
-      - run: terraform init
+      - name: Terraform Init
+        run: terraform init -input=false
 
-      - uses: actions/download-artifact@v4
+      - name: Download plan artifact
+        uses: actions/download-artifact@v4
         with:
           name: online-tfplan
           path: env/landingzones/online
 
-      - run: terraform apply -auto-approve tfplan
+      - name: Terraform Apply (from plan)
+        run: terraform apply -input=false -auto-approve tfplan
