@@ -48,15 +48,6 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: Verify tfvars exists
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "PWD=$(pwd)"
-          ls -la
-          test -f terraform.tfvars
-          echo "terraform.tfvars found"
-
       - name: Terraform Plan
         run: terraform plan -input=false -out=tfplan
 
