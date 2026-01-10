@@ -119,6 +119,8 @@
   </header>
 
   <main>
+
+    <!-- Intro -->
     <div class="card">
       <p>
         This project implements an <strong>Azure Landing Zone–style architecture</strong>
@@ -132,6 +134,7 @@
       </p>
     </div>
 
+    <!-- Architecture Layers -->
     <div class="card">
       <h2>Architecture Layers</h2>
       <ul>
@@ -150,6 +153,33 @@
       </ul>
     </div>
 
+    <!-- Architecture Diagram -->
+    <div class="card">
+      <h2>High-Level Architecture</h2>
+
+      <p>
+        A bird’s-eye view of the homelab setup, showing how governance,
+        shared platform services, and workload landing zones fit together.
+      </p>
+
+      <img
+        src="/assets/architecture.png"
+        alt="Azure Landing Zone Homelab Architecture Diagram"
+        style="
+          display: block;
+          max-width: 100%;
+          margin: 1.5rem auto;
+          border-radius: 10px;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        "
+      />
+
+      <p style="font-size: 0.9rem; color: var(--text-muted); text-align: center;">
+        Governance first. Platform next. Workloads last. Chaos carefully contained.
+      </p>
+    </div>
+
+    <!-- Why -->
     <div class="card">
       <h2>Why This Project Exists</h2>
       <p>
@@ -164,14 +194,16 @@
       </p>
     </div>
 
+    <!-- Back -->
     <div class="card">
       <a class="back-link" href="/">← Back to home</a>
     </div>
+
   </main>
 
   <footer>
     <p>
-      Built with ☁️ Azure, 🧱 Terraform, and trust issues around terraform apply.
+      Built with ☁️ Azure, 🧱 Terraform, and trust issues around <code>terraform apply</code>.
     </p>
   </footer>
 
