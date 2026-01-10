@@ -1,0 +1,59 @@
+name: Corp – Terraform Destroy
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_destroy:
+        description: "Type DESTROY to confirm"
+        required: true
+        default: ""
+      lock_id:
+        description: "Optional Terraform lock ID to force-unlock"
+        required: false
+        default: ""
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: terraform-corp
+  cancel-in-progress: false
+
+jobs:
+  terraform_destroy:
+    runs-on: ubuntu-latest
+    environment: destroy-corp
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Confirm destroy
+        shell: bash
+        run: |
+          if [ "${{ github.event.inputs.confirm_destroy }}" != "DESTROY" ]; then
+            echo "Confirmation failed. Type DESTROY to proceed."
+            exit 1
+          fi
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID_CORP }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: env/landingzones/corp
+
+      - name: Force unlock state (optional)
+        if: ${{ github.event.inputs.lock_id != '' }}
+        run: terraform force-unlock -force "${{ github.event.inputs.lock_id }}"
+        working-directory: env/landingzones/corp
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve
+        working-directory: env/landingzones/corp
