@@ -1,4 +1,4 @@
-# Azure Landing Zone – Homelab (Terraform)
+# Azure Landing Zone – Homelab Project
 
 ## Overview
 
